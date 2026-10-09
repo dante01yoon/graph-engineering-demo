@@ -1,0 +1,6 @@
+node,task,start_s,duration_s,tokens,tool_uses
+researcher,고객 수요 조사,0.0,71.7,23171,10
+researcher,배달앱 수수료·경쟁 조사,6.9,79.2,26878,11
+researcher,구축·운영 비용 조사,13.7,83.0,29674,13
+skeptic,세 조사 결과 검증,160.6,109.4,29497,7
+writer,검증 통과 주장으로 결론 작성,292.8,23.9,7713,1

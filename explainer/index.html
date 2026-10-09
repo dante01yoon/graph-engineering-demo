@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Pretendard";
+        src: url("fonts/Pretendard-Regular.woff2") format("woff2");
+        font-weight: 400;
+      }
+      @font-face {
+        font-family: "Pretendard";
+        src: url("fonts/Pretendard-SemiBold.woff2") format("woff2");
+        font-weight: 600;
+      }
+      @font-face {
+        font-family: "Pretendard";
+        src: url("fonts/Pretendard-Bold.woff2") format("woff2");
+        font-weight: 700;
+      }
+      @font-face {
+        font-family: "Pretendard";
+        src: url("fonts/Pretendard-ExtraBold.woff2") format("woff2");
+        font-weight: 800;
+      }
+      :root {
+        --bg: #0a0e16;
+        --surface: #121a28;
+        --line: #273349;
+        --text: #eef2f8;
+        --muted: #8b97ab;
+        --blue: #62a2ff;
+        --amber: #f5b544;
+        --violet: #b28cff;
+        --red: #ff4d5e;
+        --green: #3ddc97;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg);
+      }
+      #root {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        font-family: "Pretendard", sans-serif;
+        color: var(--text);
+        background: var(--bg);
+      }
+      #stage {
+        position: absolute;
+        inset: 0;
+      }
+      .grid-bg {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(120, 140, 180, 0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(120, 140, 180, 0.06) 1px, transparent 1px);
+        background-size: 60px 60px;
+      }
+      .vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.55) 100%);
+      }
+      #kicker {
+        position: absolute;
+        left: 70px;
+        top: 56px;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: var(--muted);
+        display: flex;
+        gap: 14px;
+        align-items: center;
+      }
+      #kicker .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--blue);
+      }
+      #graph {
+        position: absolute;
+        inset: 0;
+      }
+      svg#edges {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+      }
+      svg#edges path {
+        fill: none;
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+      }
+      .node {
+        position: absolute;
+        background: var(--surface);
+        border: 2px solid var(--line);
+        border-radius: 22px;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+      }
+      .role {
+        display: inline-block;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        padding: 5px 12px;
+        border-radius: 999px;
+      }
+      #q-card {
+        left: 70px;
+        top: 370px;
+        width: 400px;
+        height: 340px;
+        padding: 34px 34px;
+        border-color: #3a4766;
+      }
+      #q-card .role {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.1);
+      }
+      #q-card .q-text {
+        margin-top: 22px;
+        font-size: 38px;
+        font-weight: 700;
+        line-height: 1.32;
+        word-break: keep-all;
+      }
+      .researcher {
+        left: 600px;
+        width: 330px;
+        height: 150px;
+        padding: 20px 24px;
+        border-color: rgba(98, 162, 255, 0.55);
+      }
+      .researcher .role {
+        color: var(--blue);
+        background: rgba(98, 162, 255, 0.14);
+      }
+      .researcher .r-title {
+        margin-top: 10px;
+        font-size: 30px;
+        font-weight: 700;
+      }
+      .researcher .r-count {
+        position: absolute;
+        right: 22px;
+        top: 22px;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      #r1 {
+        top: 165px;
+      }
+      #r2 {
+        top: 465px;
+      }
+      #r3 {
+        top: 765px;
+      }
+      #skeptic {
+        left: 1110px;
+        top: 270px;
+        width: 320px;
+        height: 540px;
+        padding: 24px 26px;
+        border-color: rgba(245, 181, 68, 0.6);
+      }
+      #skeptic .role {
+        color: var(--amber);
+        background: rgba(245, 181, 68, 0.14);
+      }
+      #skeptic .s-title {
+        margin-top: 10px;
+        font-size: 30px;
+        font-weight: 700;
+      }
+      #s-stats {
+        position: absolute;
+        left: 26px;
+        right: 26px;
+        top: 370px;
+      }
+      .s-row {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .s-row b {
+        font-size: 44px;
+        font-weight: 800;
+        min-width: 66px;
+        line-height: 1.1;
+        text-align: right;
+      }
+      #s-total b {
+        color: var(--text);
+      }
+      #s-cut b,
+      #s-cut {
+        color: var(--red);
+      }
+      #s-pass b,
+      #s-pass {
+        color: var(--green);
+      }
+      #writer {
+        left: 1540px;
+        top: 465px;
+        width: 320px;
+        height: 150px;
+        padding: 20px 24px;
+        border-color: rgba(178, 140, 255, 0.6);
+      }
+      #writer .role {
+        color: var(--violet);
+        background: rgba(178, 140, 255, 0.14);
+      }
+      #writer .w-title {
+        margin-top: 10px;
+        font-size: 30px;
+        font-weight: 700;
+      }
+      .claim {
+        position: absolute;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--blue);
+      }
+      #captions {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 952px;
+        height: 60px;
+      }
+      .cap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 32px;
+        font-weight: 600;
+        color: var(--text);
+        opacity: 0;
+      }
+      .cap .n {
+        display: inline-block;
+        width: 44px;
+        height: 44px;
+        line-height: 44px;
+        border-radius: 50%;
+        margin-right: 14px;
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--bg);
+        background: var(--text);
+        vertical-align: 3px;
+      }
+      #answer {
+        position: absolute;
+        left: 400px;
+        top: 300px;
+        width: 1120px;
+        height: 440px;
+        padding: 56px 72px;
+        border-radius: 32px;
+        background: linear-gradient(160deg, #15241f 0%, #121a28 70%);
+        border: 3px solid var(--green);
+        box-shadow:
+          0 0 0 10px rgba(61, 220, 151, 0.08),
+          0 30px 90px rgba(0, 0, 0, 0.6);
+        opacity: 0;
+      }
+      #answer .role {
+        color: var(--violet);
+        background: rgba(178, 140, 255, 0.16);
+        font-size: 20px;
+      }
+      #answer .a-label {
+        margin-top: 26px;
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      #answer .a-line {
+        font-size: 74px;
+        font-weight: 800;
+        line-height: 1.22;
+        letter-spacing: -0.01em;
+      }
+      #answer .a-line em {
+        font-style: normal;
+        color: var(--green);
+      }
+      #answer .a-foot {
+        margin-top: 26px;
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      #answer .a-foot .g {
+        color: var(--green);
+      }
+      #answer .a-foot .r {
+        color: var(--red);
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-kbh8" id="root" data-composition-id="main" data-start="0" data-duration="15" data-width="1920" data-height="1080">
+      <div data-hf-id="hf-0fdg" id="stage" class="clip" data-start="0" data-duration="15" data-track-index="0">
+        <div data-hf-id="hf-q4u8" class="grid-bg"></div>
+        <div data-hf-id="hf-q7bi" class="vignette"></div>
+
+        <div data-hf-id="hf-rtgi" id="kicker"><span data-hf-id="hf-9gry" class="dot"></span><span data-hf-id="hf-lt8k">그래프 엔지니어링 — 질문이 노드를 따라 흐른다</span></div>
+
+        <div data-hf-id="hf-e9hz" id="graph">
+          <svg data-hf-id="hf-fxme" id="edges" viewBox="0 0 1920 1080">
+            <path data-hf-id="hf-nori" id="e-q-r1" pathLength="1" stroke="#62a2ff" d="M470 540 C 535 540, 535 240, 600 240" />
+            <path data-hf-id="hf-9mes" id="e-q-r2" pathLength="1" stroke="#62a2ff" d="M470 540 L 600 540" />
+            <path data-hf-id="hf-k7k4" id="e-q-r3" pathLength="1" stroke="#62a2ff" d="M470 540 C 535 540, 535 840, 600 840" />
+            <path data-hf-id="hf-21lt" id="e-r1-s" pathLength="1" stroke="#f5b544" d="M930 240 C 1020 240, 1020 540, 1110 540" />
+            <path data-hf-id="hf-1il1" id="e-r2-s" pathLength="1" stroke="#f5b544" d="M930 540 L 1110 540" />
+            <path data-hf-id="hf-xd0j" id="e-r3-s" pathLength="1" stroke="#f5b544" d="M930 840 C 1020 840, 1020 540, 1110 540" />
+            <path data-hf-id="hf-5mf4" id="e-s-w" pathLength="1" stroke="#b28cff" d="M1430 540 L 1540 540" />
+          </svg>
+
+          <div data-hf-id="hf-l5u2" id="q-card" class="node">
+            <span data-hf-id="hf-8c7l" class="role">질문</span>
+            <div data-hf-id="hf-n6h3" class="q-text">동네 빵집이 배달앱 대신 자체 예약 페이지를 열어야 할까?</div>
+          </div>
+
+          <div data-hf-id="hf-7kab" id="r1" class="node researcher">
+            <span data-hf-id="hf-s93b" class="role">researcher</span><span data-hf-id="hf-xlxg" class="r-count">주장 <span data-hf-id="hf-d5ha" id="c1">0</span></span>
+            <div data-hf-id="hf-9i1w" class="r-title">고객 수요</div>
+          </div>
+          <div data-hf-id="hf-yweg" id="r2" class="node researcher">
+            <span data-hf-id="hf-6ip3" class="role">researcher</span><span data-hf-id="hf-ocqk" class="r-count">주장 <span data-hf-id="hf-1ut7" id="c2">0</span></span>
+            <div data-hf-id="hf-gn5p" class="r-title">배달앱 수수료·경쟁</div>
+          </div>
+          <div data-hf-id="hf-zo29" id="r3" class="node researcher">
+            <span data-hf-id="hf-64e2" class="role">researcher</span><span data-hf-id="hf-n5th" class="r-count">주장 <span data-hf-id="hf-t7v4" id="c3">0</span></span>
+            <div data-hf-id="hf-u6t9" class="r-title">구축·운영 비용</div>
+          </div>
+
+          <div data-hf-id="hf-oxwh" id="skeptic" class="node">
+            <span data-hf-id="hf-ysvi" class="role">skeptic</span>
+            <div data-hf-id="hf-u30x" class="s-title">합류 · 검증</div>
+            <div data-hf-id="hf-sf5u" id="s-stats">
+              <div data-hf-id="hf-h0j0" class="s-row" id="s-total"><b data-hf-id="hf-bia7" id="n-total">0</b><span data-hf-id="hf-kavy">개 주장 검토</span></div>
+              <div data-hf-id="hf-6s9i" class="s-row" id="s-cut"><b data-hf-id="hf-cndp" id="n-cut">0</b><span data-hf-id="hf-6cke">개 탈락</span></div>
+              <div data-hf-id="hf-7iht" class="s-row" id="s-pass"><b data-hf-id="hf-ci36" id="n-pass">0</b><span data-hf-id="hf-eb8k">개 통과</span></div>
+            </div>
+          </div>
+
+          <div data-hf-id="hf-fjn7" id="writer" class="node">
+            <span data-hf-id="hf-3t7q" class="role">writer</span>
+            <div data-hf-id="hf-e138" class="w-title">결론 작성</div>
+          </div>
+
+          <div data-hf-id="hf-30le" id="claims"></div>
+        </div>
+
+        <div data-hf-id="hf-iuvo" id="captions">
+          <div data-hf-id="hf-umec" class="cap" id="cap1"><span data-hf-id="hf-e3y0" class="n">1</span>하나의 질문이 세 researcher로 동시에 갈라진다</div>
+          <div data-hf-id="hf-jwuw" class="cap" id="cap2"><span data-hf-id="hf-cx0x" class="n">2</span>skeptic에서 합쳐 주장 37개를 검증한다</div>
+          <div data-hf-id="hf-tfrz" class="cap" id="cap3"><span data-hf-id="hf-dbby" class="n">3</span>살아남은 12개로 writer가 결론을 쓴다</div>
+        </div>
+
+        <div data-hf-id="hf-5eaj" id="answer">
+          <span data-hf-id="hf-rr5x" class="role">writer · 결론</span>
+          <div data-hf-id="hf-ajkv" class="a-label">동네 빵집 자체 예약 페이지, 열어야 할까?</div>
+          <div data-hf-id="hf-prhb" class="a-line">배달앱은 <em data-hf-id="hf-p9xr">유지</em>하고</div>
+          <div data-hf-id="hf-a4rx" class="a-line">예약 페이지는 <em data-hf-id="hf-nth1">4주 시범</em></div>
+          <div data-hf-id="hf-dzfp" class="a-foot">근거 <span data-hf-id="hf-9snq" class="g">12개 통과</span> · <span data-hf-id="hf-d4nn" class="r">25개 탈락</span> (총 37개 검토)</div>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        const tl = gsap.timeline({ paused: true });
+
+        // ---- claim dots: 13 + 12 + 12 = 37 ----
+        const counts = [13, 12, 12];
+        const rTops = [165, 465, 765];
+        const DOT = 26;
+        // skeptic grid: 7 columns, origin inside the skeptic node
+        const GX = 1143, GY = 380, STEP = 38;
+        // writer centre
+        const WX = 1700, WY = 540;
+        const claimsEl = document.getElementById("claims");
+        const dots = [];
+        let k = 0;
+        counts.forEach((n, r) => {
+          for (let i = 0; i < n; i++) {
+            const gx = GX + (k % 7) * STEP;
+            const gy = GY + Math.floor(k / 7) * STEP;
+            // start: a row along the bottom of the researcher card (14px look via scale)
+            const sx = 624 + i * 21 + 7;
+            const sy = rTops[r] + 112 + 7;
+            const el = document.createElement("div");
+            el.className = "claim";
+            el.id = "claim-" + k;
+            el.style.left = gx + "px";
+            el.style.top = gy + "px";
+            claimsEl.appendChild(el);
+            dots.push({ el, r, i, dx: sx - (gx + DOT / 2), dy: sy - (gy + DOT / 2), wx: WX - (gx + DOT / 2), wy: WY - (gy + DOT / 2) });
+            k++;
+          }
+        });
+        // deterministic, scattered rejection order: 25 of 37
+        const order = [];
+        for (let i = 0; i < 37; i++) order.push((i * 15 + 4) % 37);
+        const rejected = order.slice(0, 25);
+        const survivors = order.slice(25).sort((a, b) => a - b);
+
+        dots.forEach((d) => gsap.set(d.el, { x: d.dx, y: d.dy, scale: 0, opacity: 1 }));
+
+        const counter = (sel, from, to, at, dur) => {
+          const o = { v: from };
+          tl.fromTo(
+            o,
+            { v: from },
+            {
+              v: to,
+              duration: dur,
+              ease: "none",
+              onUpdate: () => {
+                document.querySelector(sel).textContent = Math.round(o.v);
+              },
+            },
+            at
+          );
+        };
+
+        // ---- 0.0 – 2.1: question card ----
+        tl.fromTo("#kicker", { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.1);
+        tl.fromTo("#q-card", { opacity: 0, x: 690, scale: 1.25 }, { opacity: 1, scale: 1.3, duration: 0.7, ease: "power2.out" }, 0.2);
+        tl.to("#q-card", { x: 0, scale: 1, duration: 0.8, ease: "power3.inOut" }, 1.3);
+
+        // ---- 2.1 – 3.0: fan-out (simultaneous) ----
+        tl.to(["#e-q-r1", "#e-q-r2", "#e-q-r3"], { strokeDashoffset: 0, duration: 0.6, ease: "power2.inOut" }, 2.1);
+        tl.fromTo(".researcher", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.6)" }, 2.5);
+        tl.fromTo("#cap1", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5 }, 2.3);
+
+        // ---- 3.0 – 5.0: researchers produce claims in parallel ----
+        dots.forEach((d) => {
+          tl.to(d.el, { scale: 0.54, duration: 0.25, ease: "back.out(2)" }, 3.0 + d.i * 0.14);
+        });
+        counter("#c1", 0, 13, 3.0, 1.82);
+        counter("#c2", 0, 12, 3.0, 1.68);
+        counter("#c3", 0, 12, 3.0, 1.68);
+
+        // ---- 5.0 – 7.0: merge into skeptic ----
+        tl.to("#cap1", { opacity: 0, y: -10, duration: 0.35 }, 5.0);
+        tl.fromTo("#cap2", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5 }, 5.3);
+        tl.to(["#e-r1-s", "#e-r2-s", "#e-r3-s"], { strokeDashoffset: 0, duration: 0.6, ease: "power2.inOut" }, 5.1);
+        tl.fromTo("#skeptic", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.6)" }, 5.4);
+        dots.forEach((d, idx) => {
+          tl.to(d.el, { x: 0, y: 0, scale: 1, duration: 0.7, ease: "power3.inOut" }, 5.8 + idx * 0.012);
+        });
+        counter("#n-total", 0, 37, 5.9, 0.9);
+        tl.to(".researcher", { opacity: 0.45, duration: 0.5 }, 6.4);
+        tl.to(["#e-q-r1", "#e-q-r2", "#e-q-r3", "#e-r1-s", "#e-r2-s", "#e-r3-s"], { opacity: 0.35, duration: 0.5 }, 6.4);
+
+        // ---- 7.0 – 9.2: 25 claims rejected in red ----
+        rejected.forEach((idx, n) => {
+          tl.to(dots[idx].el, { backgroundColor: "#ff4d5e", scale: 1.25, duration: 0.14, ease: "power2.out" }, 7.1 + n * 0.06);
+          tl.to(dots[idx].el, { scale: 0.7, opacity: 0.22, duration: 0.3, ease: "power2.in" }, 7.25 + n * 0.06);
+        });
+        counter("#n-cut", 0, 25, 7.1, 1.5);
+        survivors.forEach((idx) => {
+          tl.to(dots[idx].el, { backgroundColor: "#3ddc97", duration: 0.3 }, 8.7);
+        });
+        counter("#n-pass", 0, 12, 8.7, 0.4);
+        tl.fromTo("#skeptic", { boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }, { boxShadow: "0 0 0 8px rgba(245,181,68,0.14), 0 18px 50px rgba(0,0,0,0.45)", duration: 0.4, yoyo: true, repeat: 1 }, 7.1);
+
+        // ---- 9.2 – 10.8: survivors flow to writer ----
+        tl.to("#cap2", { opacity: 0, y: -10, duration: 0.35 }, 9.2);
+        tl.fromTo("#cap3", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5 }, 9.5);
+        tl.to("#e-s-w", { strokeDashoffset: 0, duration: 0.45, ease: "power2.inOut" }, 9.3);
+        tl.fromTo("#writer", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.6)" }, 9.5);
+        survivors.forEach((idx, n) => {
+          const d = dots[idx];
+          tl.to(d.el, { x: d.wx, y: d.wy, scale: 0.3, duration: 0.6, ease: "power3.in" }, 9.9 + n * 0.04);
+          tl.to(d.el, { opacity: 0, duration: 0.1 }, 10.45 + n * 0.04);
+        });
+        tl.fromTo("#writer", { boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }, { boxShadow: "0 0 0 12px rgba(178,140,255,0.22), 0 18px 50px rgba(0,0,0,0.45)", duration: 0.35, yoyo: true, repeat: 1 }, 10.5);
+
+        // ---- 11.0 – 15.0: conclusion card ----
+        tl.to("#graph", { opacity: 0.16, duration: 0.6, ease: "power2.out" }, 11.1);
+        tl.to(["#r2", "#skeptic", "#claims"], { opacity: 0, duration: 0.5 }, 11.1);
+        tl.to("#cap3", { opacity: 0, duration: 0.4 }, 11.1);
+        tl.fromTo("#answer", { opacity: 0, x: 740, scale: 0.28 }, { opacity: 1, x: 0, scale: 1, duration: 0.9, ease: "power3.out" }, 11.1);
+        tl.fromTo("#answer .a-line", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.18, ease: "power2.out" }, 11.7);
+        tl.fromTo("#answer .a-foot", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 12.3);
+
+        window.__timelines["main"] = tl;
+        tl.seek(0);
+      })();
+    </script>
+  </body>
+</html>
